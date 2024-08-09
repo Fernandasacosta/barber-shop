@@ -13,6 +13,8 @@ import { generateDayTimeList } from "../_helpers/hours";
 import { format, setHours, setMinutes } from "date-fns";
 import { saveBooking } from "../_actions/save-booking";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 interface ServiceItemProps{
   barbershop: Barbershop;
@@ -21,11 +23,13 @@ interface ServiceItemProps{
 }
 
 const ServiceItem = ({service, barbershop, isAuthenticated}: ServiceItemProps) => {
+  const router = useRouter()
   const { data } = useSession();
 
   const [date, setDate] = useState<Date | undefined>(undefined);
   const [hour, setHour] = useState<string | undefined>();
   const [submitIsLoading, setSubmitIsLoading] = useState(false);
+  const [sheetIsOpen, setSheetIsOpen] = useState(false);
 
   const handleDateClick = (date: Date | undefined) => {
     setDate(date);
@@ -61,12 +65,28 @@ const ServiceItem = ({service, barbershop, isAuthenticated}: ServiceItemProps) =
         date: newDate,
         userId: (data.user as any).id,
       });
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setSubmitIsLoading(false);
-    }
-  };
+
+
+      setSheetIsOpen(false);
+      setHour(undefined);
+      setDate(undefined);
+      toast("Reserva Realizada com sucesso", {
+        description: format(newDate, "'Para' dd 'de' MMMM 'às' HH':'mm'.'",{
+          locale: ptBR,
+        }),
+        action: {
+          label: "Visualizar",
+          onClick: () => router.push("/bookings"),
+        },
+      })
+
+
+        } catch (error) {
+          console.error(error);
+        } finally {
+          setSubmitIsLoading(false);
+        }
+      };
 
 
   const timeList = useMemo(() => {
@@ -100,7 +120,7 @@ const ServiceItem = ({service, barbershop, isAuthenticated}: ServiceItemProps) =
                 }).format(Number(service.price))}
                 </p>
 
-              <Sheet>
+              <Sheet open={sheetIsOpen} onOpenChange={setSheetIsOpen}>
                 <SheetTrigger asChild>
                   <Button 
                     variant="secondary"
