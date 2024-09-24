@@ -1,4 +1,4 @@
-import Image from "next/image";
+
 import Header from "../_components/header";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -80,7 +80,9 @@ export default async function Home() {
         
         <div className="flex px-5 gap-4 overflow-x-auto [&:: -webkit-scrollbar]:hidden">
           {barbeshops.map((barbeshop) => (
+          <div key={barbeshop.id} className="min-w-[167px] max-w-[167px]">
             <BarbershopItem key={barbeshop.id} barbershop={barbeshop}/>
+          </div>
           ))}
         </div>
       </div>
